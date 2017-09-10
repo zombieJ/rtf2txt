@@ -17,6 +17,9 @@ const $previewFrom = $('#previewFrom');
 const $previewTo = $('#previewTo');
 
 console.log('~>', process.platform);
+if (process.platform !== 'darwin') {
+	dialog.showMessageBox();
+}
 
 $('#selectSrc, #selectTgt').click(function() {
 	const $input = $($(this).data('to'));
