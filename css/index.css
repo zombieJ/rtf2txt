@@ -1,0 +1,25 @@
+.no-margin {
+	margin: 0;
+}
+
+.file-view {
+	margin: 0;
+	padding: 0;
+	line-height: 200%;
+}
+
+.file-view .label {
+	display: inline-block;
+	width: 60px;
+}
+
+.files-list {
+	border-left: 4px solid #CCC;
+	margin: 0 0 0 25px;
+	padding: 0 0 0 10px;
+}
+
+#previewFrom > .file-view,
+#previewTo > .file-view {
+	padding: 0;
+}

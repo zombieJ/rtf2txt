@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>rtf to txt</title>
+	<link rel="stylesheet" type="text/css" href="./node_modules/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="./css/index.css" />
+
+	<script type="text/template" id="previewTmpl">
+		<ul class="no-margin list-unstyled file-view">
+			<% files.map(function({ name, type, files }) { %>
+				<li>
+					<% if (type === 'file') { %>
+						<span class="label label-danger">FILE</span>
+						<%= name %>
+					<% } else { %>
+						<span class="label label-primary">FOLDER</span>
+						<%= name %>
+
+						<div class="files-list">
+							<%= tmpl({ files , tmpl }) %>
+						</div>
+					<% } %>
+				</li>
+			<% }) %>
+		</ul>
+	</script>
+</head>
+<body>
+	<div class="container">
+		<h3>Batch Converter</h3>
+		<div>
+			<div class="form-group">
+				<label for="srcInput">Source Folder</label>
+				<div class="input-group">
+					<input type="text" id="srcInput" class="form-control" placeholder="Your source file folder...">
+					<span class="input-group-btn">
+						<button class="btn btn-info" id="selectSrc" data-to="#srcInput">Select Folder</button>
+					</span>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="tgtInput">
+					Target Folder
+					<small id="exportFolder" class="text-muted"></small>
+				</label>
+				<div class="input-group">
+					<input type="text" id="tgtInput" class="form-control" placeholder="Your target file folder...">
+					<span class="input-group-btn">
+						<button class="btn btn-info" id="selectTgt" data-to="#tgtInput">Select Folder</button>
+					</span>
+				</div>
+			</div>
+
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" id="ignoreFolder" checked> Ignore folder without .rtf & .txt file
+				</label>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-10">
+				<p id="tips" class="text-danger"></p>
+			</div>
+			<div class="col-sm-2 text-right">
+				<button class="btn btn-primary" id="convert">Start Convert</button>
+			</div>
+		</div>
+
+		<div id="preview">
+			<hr />
+			<h3>Preview</h3>
+			<div class="row">
+				<div class="col-md-6">
+					<h4>From:</h4>
+					<div id="previewFrom" class="well well-sm"></div>
+				</div>
+				<div class="col-md-6">
+					<h4>To:</h4>
+					<div id="previewTo" class="well well-sm"></div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+
+<script>
+	window._ = require('./node_modules/lodash/lodash.min');
+	window.$ = window.jQuery = require('./node_modules/jquery/dist/jquery.min.js');
+</script>
+<script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="./js/index.js"></script>
+</html>
