@@ -217,16 +217,6 @@ function doConvert(fileList, path) {
 			const rtf = FS.readFileSync(file.path, 'utf8').toString();
 			const txt = convertToPlain(rtf);
 			FS.writeFileSync(subPath, txt, 'utf8');
-			// exec(`.\\bin\\unrtf.exe --text ${file.path}`, (err, stdout, stderr) => {
-			// 	if (err) {
-			// 		console.error(err);
-			// 		return;
-			// 	}
-			//
-			// 	// the *entire* stdout and stderr (buffered)
-			// 	console.log(`stdout: ${stdout}`);
-			// 	console.log(`stderr: ${stderr}`);
-			// });
 		} else {
 			FS.createReadStream(file.path)
 				.pipe(FS.createWriteStream(subPath));
