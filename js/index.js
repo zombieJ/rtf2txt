@@ -2,9 +2,10 @@ const { dialog } = require('electron').remote;
 const convertToPlain = require('./lib/parser');
 const FS = require('fs');
 const PATH = require('path');
-const { exec } = require('child_process');
+const { execSync } = require('child_process');
 
 const _previewTmpl = _.template($('#previewTmpl').remove().text());
+const isMac = process.platform === 'darwin';
 
 const $srcInput = $('#srcInput');
 const $tgtInput = $('#tgtInput');
@@ -16,9 +17,21 @@ const $preview = $('#preview');
 const $previewFrom = $('#previewFrom');
 const $previewTo = $('#previewTo');
 
-console.log('~>', process.platform);
-if (process.platform !== 'darwin') {
-	dialog.showMessageBox();
+function deleteFile(path) {
+	if (FS.existsSync(path)) {
+		FS.unlinkSync(path);
+	}
+}
+
+function copyFile(src, tgt) {
+	FS.createReadStream(src)
+		.pipe(FS.createWriteStream(tgt));
+}
+
+if (!isMac) {
+	dialog.showMessageBox({
+		message: 'None Mac will roll down to software decode. This may work not correctly.',
+	});
 }
 
 $('#selectSrc, #selectTgt').click(function() {
@@ -89,6 +102,13 @@ function checkFiles() {
 	$exportFolder.text(`[save to: ${exportPath}]`);
 
 	// Pre-process
+	refreshPreview();
+}
+
+function refreshPreview() {
+	const src = ($srcInput.val() || '').trim();
+	const srcPath = PATH.normalize(src);
+
 	const ignore = $ignoreFolder.prop('checked');
 
 	const files = fileQuery(srcPath);
@@ -216,13 +236,25 @@ function doConvert(fileList, path) {
 
 			doConvert(file.files, subPath);
 		} else if (file.suffix === 'rtf') {
-			console.log(file.name, ':');
-			const rtf = FS.readFileSync(file.path, 'utf8').toString();
-			const txt = convertToPlain(rtf);
-			FS.writeFileSync(subPath, txt, 'utf8');
+			if (!isMac) {
+				// None Mac ENV
+				const rtf = FS.readFileSync(file.path, 'utf8').toString();
+				const txt = convertToPlain(rtf);
+				FS.writeFileSync(subPath, txt, 'utf8');
+			} else {
+				// Mac ENV
+				deleteFile('/tmp/rtf2txt.rtf');
+				deleteFile('/tmp/rtf2txt.txt');
+
+				execSync(`cp '${file.path}' /tmp/rtf2txt.rtf`);
+				execSync(`textutil -convert txt /tmp/rtf2txt.rtf`);
+
+				copyFile('/tmp/rtf2txt.txt', subPath);
+				deleteFile('/tmp/rtf2txt.rtf');
+				deleteFile('/tmp/rtf2txt.txt');
+			}
 		} else {
-			FS.createReadStream(file.path)
-				.pipe(FS.createWriteStream(subPath));
+			copyFile(file.path, subPath);
 		}
 	});
 }
@@ -238,5 +270,22 @@ $convert.click(function () {
 	let toFiles = toQuery(files);
 	if (ignore) toFiles = ignoreFolder(toFiles);
 
-	doConvert(toFiles, tgtPath);
+	$tips.text('Processing...');
+	setTimeout(() => {
+		try {
+			const srcSeps = srcPath.split(PATH.sep);
+			const exportPath = PATH.normalize(`${tgtPath}${PATH.sep}${srcSeps[srcSeps.length - 1]}`);
+			console.log('Check folder:', exportPath);
+			if (!FS.existsSync(exportPath)) {
+				FS.mkdirSync(exportPath);
+			}
+
+			doConvert(toFiles, exportPath);
+		} catch(err) {
+			dialog.showMessageBox({
+				message: 'OPS! ' + err.toString(),
+			});
+		}
+		$tips.text('Done!');
+	}, 100);
 });

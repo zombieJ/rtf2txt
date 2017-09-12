@@ -4,12 +4,14 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-packager --overwrite ."
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "1.7.6"
+    "electron": "1.7.6",
+    "electron-packager": "^9.0.1"
   },
   "dependencies": {
     "bootstrap": "^3.3.7",

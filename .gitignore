@@ -1,2 +1,4 @@
 node_modules/
 .idea/
+rtf2txt-darwin-x64/
+.DS_Store
